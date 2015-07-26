@@ -103,6 +103,41 @@ describe('Comment routes:', function () {
                 });
             });
         });
+
+        describe('A comment can include it\'s author.', function () {
+            let user;
+            let comment;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                comment = yield FactoryGirl.createAsync('comment', {authorId: user.id});
+            });
+
+            before(function *() {
+                res = yield request
+                    .get(t.replaceParams(routes.comment, {id: comment.id}))
+                    .query({include: 'author'})
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .expect(200);
+            });
+
+            it('Response data has correct keys.', function () {
+                Object.keys(models.Comment.jsonSchema.properties).forEach(function (key) {
+                    expect(res.body.comment).to.have.property(key);
+                });
+            });
+
+            it('Includes author model in response.', function () {
+                expect(res.body.comment).to.have.property('author');
+                expect(res.body.comment.author).to.have.property('id');
+            });
+        });
     });
 
     describe('GET ' + routes.comments, function () {
@@ -134,7 +169,43 @@ describe('Comment routes:', function () {
                     expect(res.body.comments[0]).to.have.property(key);
                 });
             });
+        });
 
+        describe('Comments can include their author.', function () {
+            let user;
+            let comment;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                comment = yield FactoryGirl.createAsync('comment', {authorId: user.id});
+            });
+
+            before(function *() {
+                res = yield request
+                    .get(routes.comments)
+                    .query({include: 'author'})
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .expect(200);
+            });
+
+            it('Response data is ok.', function () {
+                expect(res.body.comments).be.an('array');
+                expect(res.body.comments).to.have.length(1);
+                Object.keys(models.Comment.jsonSchema.properties).forEach(function (key) {
+                    expect(res.body.comments[0]).to.have.property(key);
+                });
+            });
+
+            it('Includes author model in response.', function () {
+                expect(res.body.comments[0]).to.have.property('author');
+                expect(res.body.comments[0].author).to.have.property('id');
+            });
         });
     });
 

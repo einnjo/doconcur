@@ -14,12 +14,21 @@ exports.createComment = function *() {
 };
 
 exports.getComment = function *() {
-    let comment = yield Comment.query().where('id', this.params.id).first();
+    let comment = yield Comment
+        .query()
+        .allowEager('[author]')
+        .eager(this.query.include)
+        .where('id', this.params.id).first();
+
     this.body = {comment: comment};
 };
 
 exports.getComments = function *() {
-    let comments = yield Comment.query();
+    let comments = yield Comment
+        .query()
+        .allowEager('[author]')
+        .eager(this.query.include);
+
     this.body = {comments: comments};
 };
 
