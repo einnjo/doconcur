@@ -1,7 +1,6 @@
 'use strict';
 
 var Decision = require('src/resources/decision/decision_model');
-var _ = require('lodash');
 
 exports.createDecision = function *() {
     let decision = this.request.body;

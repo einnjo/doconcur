@@ -1,7 +1,6 @@
 'use strict';
 
 var Comment = require('src/resources/comment/comment_model');
-var _ = require('lodash');
 
 exports.createComment = function *() {
     let comment = this.request.body;

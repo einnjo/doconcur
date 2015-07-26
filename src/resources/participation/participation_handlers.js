@@ -1,7 +1,6 @@
 'use strict';
 
 var Participation = require('src/resources/participation/participation_model');
-var _ = require('lodash');
 
 exports.createParticipation = function *() {
     let participation = this.request.body;

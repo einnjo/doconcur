@@ -1,7 +1,6 @@
 'use strict';
 
 var Topic = require('src/resources/topic/topic_model');
-var _ = require('lodash');
 
 exports.createTopic = function *() {
     let topic = this.request.body;
