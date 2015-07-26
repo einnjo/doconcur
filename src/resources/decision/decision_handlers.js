@@ -9,6 +9,8 @@ exports.createDecision = function *() {
 
     decision = yield Decision.query().insert(decision);
 
+    decision = yield Decision.query().where('id', decision.id).first();
+
     this.body = {decision: decision};
 };
 
@@ -26,11 +28,11 @@ exports.updateDecision = function *() {
     let decision = yield Decision.query().where('id', this.params.id).first();
     let decisionUpdate = this.request.body;
 
-    let updatedDecision = yield Decision.query()
+    yield Decision.query()
         .patch(decisionUpdate)
         .where('id', this.params.id);
 
-    decision = _.assign(decision, updatedDecision);
+    decision = yield Decision.query().where('id', this.params.id).first();
 
     this.body = {decision: decision};
 };

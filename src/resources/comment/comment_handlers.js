@@ -9,6 +9,8 @@ exports.createComment = function *() {
 
     comment = yield Comment.query().insert(comment);
 
+    comment = yield Comment.query().where('id', comment.id).first();
+
     this.body = {comment: comment};
 };
 
@@ -26,11 +28,11 @@ exports.updateComment = function *() {
     let comment = yield Comment.query().where('id', this.params.id).first();
     let commentUpdate = this.request.body;
 
-    let updatedComment = yield Comment.query()
+    yield Comment.query()
         .patch(commentUpdate)
         .where('id', this.params.id);
 
-    comment = _.assign(comment, updatedComment);
+    comment = yield Comment.query().where('id', this.params.id).first();
 
     this.body = {comment: comment};
 };

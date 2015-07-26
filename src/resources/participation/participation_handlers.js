@@ -9,6 +9,8 @@ exports.createParticipation = function *() {
 
     participation = yield Participation.query().insert(participation);
 
+    participation = yield Participation.query().where('id', participation.id).first();
+
     this.body = {participation: participation};
 };
 
@@ -26,11 +28,11 @@ exports.updateParticipation = function *() {
     let participation = yield Participation.query().where('id', this.params.id).first();
     let participationUpdate = this.request.body;
 
-    participationUpdate = yield Participation.query()
+    yield Participation.query()
         .patch(participationUpdate)
         .where('id', '=', this.params.id);
 
-    participation = _.assign(participation, participationUpdate);
+    participation = yield Participation.query().where('id', this.params.id).first();
 
     this.body = {participation: participation};
 };

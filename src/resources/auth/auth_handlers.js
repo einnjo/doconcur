@@ -5,18 +5,16 @@ var User = require('src/resources/user/user_model');
 exports.signup = function *() {
     let user;
 
-    try {
-        user =  User.fromJson(this.request.body);
+    user =  User.fromJson(this.request.body);
 
-        yield user.hashPassword();
+    yield user.hashPassword();
 
-        user = yield User.query().insert(user);
+    user = yield User.query().insert(user);
 
-        user.createTokenSync();
-        user = yield User.query().patch({token: user.token}).where('id', user.id);
-    } catch (err) {
-        throw err;
-    }
+    user.createTokenSync();
+    user = yield User.query().patch({token: user.token}).where('id', user.id);
+
+    user = yield User.query().where('id', user.id).first();
 
     this.body = user;
 };

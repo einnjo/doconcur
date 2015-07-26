@@ -9,6 +9,8 @@ exports.createTopic = function *() {
 
     topic = yield Topic.query().insert(topic);
 
+    topic = yield Topic.query().where('id', topic.id).first();
+
     this.body = {topic: topic};
 };
 
@@ -26,11 +28,11 @@ exports.updateTopic = function *() {
     let topic = yield Topic.query().where('id', this.params.id).first();
     let topicUpdate = this.request.body;
 
-    topicUpdate = yield Topic.query()
+    yield Topic.query()
         .patch(topicUpdate)
         .where('id', this.params.id);
 
-    topic = _.assign(topic, topicUpdate);
+    topic = yield Topic.query().where('id', this.params.id).first();
 
     this.body = {topic: topic};
 };
