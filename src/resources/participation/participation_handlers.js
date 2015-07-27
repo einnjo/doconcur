@@ -14,12 +14,22 @@ exports.createParticipation = function *() {
 };
 
 exports.getParticipation = function *() {
-    let participation = yield Participation.query().where('id', this.params.id).first();
+    let participation = yield Participation
+        .query()
+        .allowEager('[author, decision, answer]')
+        .eager(this.query.include)
+        .where('id', this.params.id)
+        .first();
+
     this.body = {participation: participation};
 };
 
 exports.getParticipations = function *() {
-    let participations = yield Participation.query();
+    let participations = yield Participation
+        .query()
+        .allowEager('[author, decision, answer]')
+        .eager(this.query.include);
+
     this.body = {participations: participations};
 };
 
@@ -31,7 +41,12 @@ exports.updateParticipation = function *() {
         .patch(participationUpdate)
         .where('id', '=', this.params.id);
 
-    participation = yield Participation.query().where('id', this.params.id).first();
+    participation = yield Participation
+        .query()
+        .where('id', this.params.id)
+        .allowEager('[author, decision, answer]')
+        .eager(this.query.include)
+        .first();
 
     this.body = {participation: participation};
 };

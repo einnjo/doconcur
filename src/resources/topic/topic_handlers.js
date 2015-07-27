@@ -14,12 +14,22 @@ exports.createTopic = function *() {
 };
 
 exports.getTopic = function *() {
-    let topic = yield Topic.query().where('id', this.params.id).first();
+    let topic = yield Topic
+        .query()
+        .allowEager('[author, decisions, parentTopic, subTopics]')
+        .eager(this.query.include)
+        .where('id', this.params.id)
+        .first();
+
     this.body = {topic: topic};
 };
 
 exports.getTopics = function *() {
-    let topics = yield Topic.query();
+    let topics = yield Topic
+        .query()
+        .allowEager('[author, decisions, parentTopic, subTopics]')
+        .eager(this.query.include);
+
     this.body = {topics: topics};
 };
 
@@ -31,7 +41,12 @@ exports.updateTopic = function *() {
         .patch(topicUpdate)
         .where('id', this.params.id);
 
-    topic = yield Topic.query().where('id', this.params.id).first();
+    topic = yield Topic
+        .query()
+        .allowEager('[author, decisions, parentTopic, subTopics]')
+        .eager(this.query.include)
+        .where('id', this.params.id)
+        .first();
 
     this.body = {topic: topic};
 };

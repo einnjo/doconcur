@@ -16,7 +16,7 @@ exports.createDecision = function *() {
 exports.getDecision = function *() {
     let decision = yield Decision
         .query()
-        .allowEager('[author]')
+        .allowEager('[author, topic, participations]')
         .eager(this.query.include)
         .where('id', this.params.id)
         .first();
@@ -27,7 +27,7 @@ exports.getDecision = function *() {
 exports.getDecisions = function *() {
     let decisions = yield Decision
         .query()
-        .allowEager('[author]')
+        .allowEager('[author, topic, participations]')
         .eager(this.query.include);
 
     this.body = {decisions: decisions};
@@ -41,7 +41,11 @@ exports.updateDecision = function *() {
         .patch(decisionUpdate)
         .where('id', this.params.id);
 
-    decision = yield Decision.query().where('id', this.params.id).first();
+    decision = yield Decision
+        .query()
+        .allowEager('[author, topic, participations]')
+        .where('id', this.params.id)
+        .first();
 
     this.body = {decision: decision};
 };

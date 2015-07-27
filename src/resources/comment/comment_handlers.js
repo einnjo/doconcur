@@ -16,7 +16,7 @@ exports.createComment = function *() {
 exports.getComment = function *() {
     let comment = yield Comment
         .query()
-        .allowEager('[author]')
+        .allowEager('[author, decision]')
         .eager(this.query.include)
         .where('id', this.params.id).first();
 
@@ -26,7 +26,7 @@ exports.getComment = function *() {
 exports.getComments = function *() {
     let comments = yield Comment
         .query()
-        .allowEager('[author]')
+        .allowEager('[author, decision]')
         .eager(this.query.include);
 
     this.body = {comments: comments};
@@ -40,7 +40,11 @@ exports.updateComment = function *() {
         .patch(commentUpdate)
         .where('id', this.params.id);
 
-    comment = yield Comment.query().where('id', this.params.id).first();
+    comment = yield Comment
+        .query()
+        .allowEager('[author, decision]')
+        .where('id', this.params.id)
+        .first();
 
     this.body = {comment: comment};
 };
