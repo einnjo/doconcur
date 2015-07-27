@@ -6,6 +6,7 @@ services:
 before_script:
 - ln -s ../src ./node_modules/src
 - psql -c 'create database doconcur;' -U postgres
+- knex migrate:latest
 script:
 - eslint .
 - mocha --recursive --harmony_arrow_functions ./test
