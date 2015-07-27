@@ -2,12 +2,27 @@
 
 var comment = require('src/resources/comment/comment_handlers');
 var router = require('koa-router')();
+var compose = require('koa-compose');
 
 router
-    .post('/comments', comment.createComment)
-    .get('/comments/:id', comment.getComment)
-    .get('/comments', comment.getComments)
-    .put('/comments/:id', comment.updateComment)
+    .post('/comments', compose([
+        comment.createComment,
+        comment.getComment,
+        comment.commentResponse
+    ]))
+    .get('/comments/:id', compose([
+        comment.getComment,
+        comment.commentResponse
+    ]))
+    .get('/comments', compose([
+        comment.getComments,
+        comment.commentResponse
+    ]))
+    .put('/comments/:id', compose([
+        comment.updateComment,
+        comment.getComment,
+        comment.commentResponse
+    ]))
     .delete('/comments/:id', comment.deleteComment);
 
 module.exports = router;

@@ -2,56 +2,62 @@
 
 var Participation = require('src/resources/participation/participation_model');
 
-exports.createParticipation = function *() {
-    let participation = this.request.body;
-    participation.authorId = this.req.user.id;
+exports.createParticipation = function *(next) {
+    let newParticipation = this.request.body;
+    newParticipation.authorId = this.req.user.id;
 
-    participation = yield Participation.query().insert(participation);
+    this.state.participation = yield Participation.query().insert(newParticipation);
 
-    participation = yield Participation.query().where('id', participation.id).first();
-
-    this.body = {participation: participation};
+    yield next;
 };
 
-exports.getParticipation = function *() {
-    let participation = yield Participation
+exports.getParticipation = function *(next) {
+    let participationId;
+
+    if (this.params.id) {
+        participationId = this.params.id;
+    } else if (this.state.participation) {
+        participationId = this.state.participation.id;
+    }
+
+    this.state.participation = yield Participation
         .query()
         .allowEager('[author, decision, answer]')
         .eager(this.query.include)
-        .where('id', this.params.id)
+        .where('id', participationId)
         .first();
 
-    this.body = {participation: participation};
+    yield next;
 };
 
-exports.getParticipations = function *() {
-    let participations = yield Participation
+exports.getParticipations = function *(next) {
+    this.state.participations = yield Participation
         .query()
         .allowEager('[author, decision, answer]')
         .eager(this.query.include);
 
-    this.body = {participations: participations};
+    yield next;
 };
 
-exports.updateParticipation = function *() {
-    let participation = yield Participation.query().where('id', this.params.id).first();
+exports.updateParticipation = function *(next) {
     let participationUpdate = this.request.body;
 
     yield Participation.query()
         .patch(participationUpdate)
         .where('id', '=', this.params.id);
 
-    participation = yield Participation
-        .query()
-        .where('id', this.params.id)
-        .allowEager('[author, decision, answer]')
-        .eager(this.query.include)
-        .first();
-
-    this.body = {participation: participation};
+    yield next;
 };
 
 exports.deleteParticipation = function *() {
     yield Participation.query().delete().where('id', '=', this.params.id);
     this.status = 204;
+};
+
+exports.participationResponse = function *() {
+    if (this.state.participation) {
+        this.body = {participation: this.state.participation};
+    } else if (this.state.participations) {
+        this.body = {participations: this.state.participations};
+    }
 };

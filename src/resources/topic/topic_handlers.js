@@ -2,56 +2,63 @@
 
 var Topic = require('src/resources/topic/topic_model');
 
-exports.createTopic = function *() {
-    let topic = this.request.body;
-    topic.authorId = this.req.user.id;
+exports.createTopic = function *(next) {
+    let newTopic = this.request.body;
+    newTopic.authorId = this.req.user.id;
 
-    topic = yield Topic.query().insert(topic);
+    this.state.topic = yield Topic.query().insert(newTopic);
 
-    topic = yield Topic.query().where('id', topic.id).first();
-
-    this.body = {topic: topic};
+    yield next;
 };
 
-exports.getTopic = function *() {
-    let topic = yield Topic
+exports.getTopic = function *(next) {
+    let topicId;
+
+    if (this.params.id) {
+        topicId = this.params.id;
+    } else if (this.state.topic) {
+        topicId = this.state.topic.id;
+    }
+
+    this.state.topic = yield Topic
         .query()
         .allowEager('[author, decisions, parentTopic, subTopics]')
         .eager(this.query.include)
-        .where('id', this.params.id)
+        .where('id', topicId)
         .first();
 
-    this.body = {topic: topic};
+    yield next;
 };
 
-exports.getTopics = function *() {
-    let topics = yield Topic
+exports.getTopics = function *(next) {
+    this.state.topics = yield Topic
         .query()
         .allowEager('[author, decisions, parentTopic, subTopics]')
         .eager(this.query.include);
 
-    this.body = {topics: topics};
+    yield next;
 };
 
-exports.updateTopic = function *() {
-    let topic = yield Topic.query().where('id', this.params.id).first();
+exports.updateTopic = function *(next) {
     let topicUpdate = this.request.body;
 
     yield Topic.query()
         .patch(topicUpdate)
         .where('id', this.params.id);
 
-    topic = yield Topic
-        .query()
-        .allowEager('[author, decisions, parentTopic, subTopics]')
-        .eager(this.query.include)
-        .where('id', this.params.id)
-        .first();
-
-    this.body = {topic: topic};
+    yield next;
 };
 
 exports.deleteTopic = function *() {
     yield Topic.query().delete().where('id', this.params.id);
     this.status = 204;
+};
+
+
+exports.topicResponse = function *() {
+    if (this.state.topic) {
+        this.body = {topic: this.state.topic};
+    } else if (this.state.topics) {
+        this.body = {topics: this.state.topics};
+    }
 };
