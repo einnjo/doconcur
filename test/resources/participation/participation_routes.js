@@ -151,7 +151,7 @@ describe('Participation routes:', function () {
 
                 newAnswer = yield FactoryGirl.createAsync('answer');
 
-                participation = yield FactoryGirl.createAsync('participation');
+                participation = yield FactoryGirl.createAsync('participation', {authorId: user.id});
                 participationUpdate = _.cloneDeep(participation);
                 participationUpdate.answerId = newAnswer.id;
             });
@@ -179,7 +179,46 @@ describe('Participation routes:', function () {
                     expect(participationInDb[key]).to.equal(participationUpdate[key]);
                 });
             });
+        });
 
+        describe('Users can not update a participation they didn\'t author.', function () {
+            let user;
+            let participation;
+            let newAnswer;
+            let participationUpdate;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                newAnswer = yield FactoryGirl.createAsync('answer');
+
+                participation = yield FactoryGirl.createAsync('participation');
+                participationUpdate = _.cloneDeep(participation);
+                participationUpdate.answerId = newAnswer.id;
+            });
+
+            before(function *() {
+                res = yield request
+                    .put(t.replaceParams(routes.participation, {id: participation.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .send(participationUpdate)
+                    .expect(403);
+            });
+
+            it('Model in db didn\'t change.', function *() {
+                let participationInDb = yield knex('Participations').select().where('id', participation.id).first();
+
+                expect(participationInDb).to.exist();
+
+                Object.keys(participationUpdate).forEach(function (key) {
+                    expect(participationInDb[key]).to.equal(participation[key]);
+                });
+            });
         });
     });
 
@@ -208,6 +247,35 @@ describe('Participation routes:', function () {
             it('Participation is deleted from db.', function *() {
                 let participationInDb = yield knex('Participations').select().where('id', participation.id).first();
                 expect(participationInDb).to.not.exist();
+            });
+
+        });
+
+        describe('Users can not delete a participation they didn\'t author.', function () {
+            let user;
+            let participation;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                participation = yield FactoryGirl.createAsync('participation');
+            });
+
+            before(function *() {
+                res = yield request
+                    .del(t.replaceParams(routes.participation, {id: participation.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .expect(403);
+            });
+
+            it('Participation is deleted from db.', function *() {
+                let participationInDb = yield knex('Participations').select().where('id', participation.id).first();
+                expect(participationInDb).to.exist();
             });
 
         });

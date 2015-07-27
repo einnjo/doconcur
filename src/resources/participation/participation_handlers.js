@@ -61,3 +61,11 @@ exports.participationResponse = function *() {
         this.body = {participations: this.state.participations};
     }
 };
+
+exports.checkParticipationPermissions = function *(next) {
+    if (this.state.participation.authorId !== this.req.user.id) {
+        this.throw(403);
+    }
+
+    yield next;
+};

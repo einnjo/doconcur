@@ -145,7 +145,7 @@ describe('Topic routes:', function () {
                 user.createTokenSync();
                 yield models.User.query().patch({token: user.token});
 
-                topic = yield FactoryGirl.createAsync('topic');
+                topic = yield FactoryGirl.createAsync('topic', {authorId: user.id});
                 topicUpdate = _.cloneDeep(topic);
                 topicUpdate.title = 'Changed title';
             });
@@ -175,6 +175,44 @@ describe('Topic routes:', function () {
             });
 
         });
+
+        describe('Users can not update topics they didn\'t author.', function () {
+            let user;
+            let topic;
+            let topicUpdate;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                topic = yield FactoryGirl.createAsync('topic');
+                topicUpdate = _.cloneDeep(topic);
+                topicUpdate.title = 'Changed title';
+            });
+
+            before(function *() {
+                res = yield request
+                    .put(t.replaceParams(routes.topic, {id: topic.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .send(topicUpdate)
+                    .expect(403);
+            });
+
+            it('Model in db didn\'t change.', function *() {
+                let topicInDb = yield knex('Topics').select().where('id', topic.id).first();
+
+                expect(topicInDb).to.exist();
+
+                Object.keys(topicUpdate).forEach(function (key) {
+                    expect(topicInDb[key]).to.equal(topic[key]);
+                });
+            });
+
+        });
     });
 
     describe('DELETE ' + routes.topic, function () {
@@ -200,8 +238,36 @@ describe('Topic routes:', function () {
             });
 
             it('Topic is deleted from db.', function *() {
-                let topicInDb = yield knex('Participations').select().where('id', topic.id).first();
+                let topicInDb = yield knex('Topics').select().where('id', topic.id).first();
                 expect(topicInDb).to.not.exist();
+            });
+        });
+
+        describe('Users can not delete a topic they didn\'t author.', function () {
+            let user;
+            let topic;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                topic = yield FactoryGirl.createAsync('topic');
+            });
+
+            before(function *() {
+                res = yield request
+                    .del(t.replaceParams(routes.topic, {id: topic.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .expect(403);
+            });
+
+            it('Topic is not deleted from db.', function *() {
+                let topicInDb = yield knex('Topics').select().where('id', topic.id).first();
+                expect(topicInDb).to.exist();
             });
 
         });

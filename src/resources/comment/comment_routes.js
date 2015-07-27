@@ -19,10 +19,16 @@ router
         comment.commentResponse
     ]))
     .put('/comments/:id', compose([
+        comment.getComment,
+        comment.checkCommentPermissions,
         comment.updateComment,
         comment.getComment,
         comment.commentResponse
     ]))
-    .delete('/comments/:id', comment.deleteComment);
+    .delete('/comments/:id', compose([
+        comment.getComment,
+        comment.checkCommentPermissions,
+        comment.deleteComment
+    ]));
 
 module.exports = router;

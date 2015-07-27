@@ -62,3 +62,11 @@ exports.topicResponse = function *() {
         this.body = {topics: this.state.topics};
     }
 };
+
+exports.checkTopicPermissions = function *(next) {
+    if (this.state.topic.authorId !== this.req.user.id) {
+        this.throw(403);
+    }
+
+    yield next;
+};

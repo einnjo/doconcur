@@ -61,3 +61,11 @@ exports.commentResponse = function *() {
         this.body = {comments: this.state.comments};
     }
 };
+
+exports.checkCommentPermissions = function *(next) {
+    if (this.state.comment.authorId !== this.req.user.id) {
+        this.throw(403);
+    }
+
+    yield next;
+};

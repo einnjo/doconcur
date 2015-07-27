@@ -223,7 +223,7 @@ describe('Comment routes:', function () {
                 user.createTokenSync();
                 yield models.User.query().patch({token: user.token});
 
-                comment = yield FactoryGirl.createAsync('comment');
+                comment = yield FactoryGirl.createAsync('comment', {authorId: user.id});
                 commentUpdate = _.cloneDeep(comment);
                 commentUpdate.text = 'Updated text.';
             });
@@ -249,6 +249,43 @@ describe('Comment routes:', function () {
 
                 Object.keys(commentUpdate).forEach(function (key) {
                     expect(commentInDb[key]).to.equal(commentUpdate[key]);
+                });
+            });
+        });
+
+        describe('Users can not update a comment they didn\'t author.', function () {
+            let user;
+            let comment;
+            let commentUpdate;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                comment = yield FactoryGirl.createAsync('comment');
+                commentUpdate = _.cloneDeep(comment);
+                commentUpdate.text = 'Updated text.';
+            });
+
+            before(function *() {
+                res = yield request
+                    .put(t.replaceParams(routes.comment, {id: comment.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .send(commentUpdate)
+                    .expect(403);
+            });
+
+            it('Model in db didn\'t change.', function *() {
+                let commentInDb = yield knex('Comments').select().where('id', comment.id).first();
+
+                expect(commentInDb).to.exist();
+
+                Object.keys(commentUpdate).forEach(function (key) {
+                    expect(commentInDb[key]).to.equal(comment[key]);
                 });
             });
 
@@ -280,6 +317,33 @@ describe('Comment routes:', function () {
             it('Comment is deleted from db.', function *() {
                 let commentInDb = yield knex('Comments').select().where('id', comment.id).first();
                 expect(commentInDb).to.not.exist();
+            });
+        });
+
+        describe('Users can not delete a comment they didn\'t author.', function () {
+            let user;
+            let comment;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                comment = yield FactoryGirl.createAsync('comment');
+            });
+
+            before(function *() {
+                res = yield request.del(t.replaceParams(routes.comment, {id: comment.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .expect(403);
+            });
+
+            it('Comment is not deleted from db.', function *() {
+                let commentInDb = yield knex('Comments').select().where('id', comment.id).first();
+                expect(commentInDb).to.exist();
             });
 
         });

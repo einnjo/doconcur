@@ -19,10 +19,16 @@ router
         topic.topicResponse
     ]))
     .put('/topics/:id', compose([
+        topic.getTopic,
+        topic.checkTopicPermissions,
         topic.updateTopic,
         topic.getTopic,
         topic.topicResponse
     ]))
-    .del('/topics/:id', topic.deleteTopic);
+    .del('/topics/:id', compose([
+        topic.getTopic,
+        topic.checkTopicPermissions,
+        topic.deleteTopic
+    ]));
 
 module.exports = router;

@@ -223,7 +223,7 @@ describe('Decision routes:', function () {
                 user.createTokenSync();
                 yield models.User.query().patch({token: user.token});
 
-                decision = yield FactoryGirl.createAsync('decision');
+                decision = yield FactoryGirl.createAsync('decision', {authorId: user.id});
                 decisionUpdate = _.cloneDeep(decision);
                 decisionUpdate.title = 'Updated title.';
             });
@@ -251,7 +251,43 @@ describe('Decision routes:', function () {
                     expect(decisionInDb[key]).to.equal(decisionUpdate[key]);
                 });
             });
+        });
 
+        describe('Users can not update a decision they didn\'t author.', function () {
+            let user;
+            let decision;
+            let decisionUpdate;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                decision = yield FactoryGirl.createAsync('decision');
+                decisionUpdate = _.cloneDeep(decision);
+                decisionUpdate.title = 'Updated title.';
+            });
+
+            before(function *() {
+                res = yield request
+                    .put(t.replaceParams(routes.decision, {id: decision.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .send(decisionUpdate)
+                    .expect(403);
+            });
+
+            it('Model in db didn\'t change.', function *() {
+                let decisionInDb = yield knex('Decisions').select().where('id', decision.id).first();
+
+                expect(decisionInDb).to.exist();
+
+                Object.keys(decisionUpdate).forEach(function (key) {
+                    expect(decisionInDb[key]).to.equal(decision[key]);
+                });
+            });
         });
     });
 
@@ -280,6 +316,33 @@ describe('Decision routes:', function () {
             it('Decision is deleted from db.', function *() {
                 let decisionInDb = yield knex('Decisions').select().where('id', decision.id).first();
                 expect(decisionInDb).to.not.exist();
+            });
+        });
+
+        describe('Users can not delete a decision they didn\'t author.', function () {
+            let user;
+            let decision;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                decision = yield FactoryGirl.createAsync('decision');
+            });
+
+            before(function *() {
+                res = yield request.del(t.replaceParams(routes.decision, {id: decision.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .expect(403);
+            });
+
+            it('Decision is not deleted from db.', function *() {
+                let decisionInDb = yield knex('Decisions').select().where('id', decision.id).first();
+                expect(decisionInDb).to.exist();
             });
 
         });

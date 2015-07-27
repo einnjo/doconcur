@@ -19,10 +19,16 @@ router
         decision.decisionResponse
     ]))
     .put('/decisions/:id', compose([
+        decision.getDecision,
+        decision.checkDecisionPermissions,
         decision.updateDecision,
         decision.getDecision,
         decision.decisionResponse
     ]))
-    .del('/decisions/:id', decision.deleteDecision);
+    .del('/decisions/:id', compose([
+        decision.getDecision,
+        decision.checkDecisionPermissions,
+        decision.deleteDecision
+    ]));
 
 module.exports = router;

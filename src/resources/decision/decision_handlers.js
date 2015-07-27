@@ -67,3 +67,11 @@ exports.decisionResponse = function *() {
         this.body = {decisions: this.state.decisions};
     }
 };
+
+exports.checkDecisionPermissions = function *(next) {
+    if (this.state.decision.authorId !== this.req.user.id) {
+        this.throw(403);
+    }
+
+    yield next;
+};
