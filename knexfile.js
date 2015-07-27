@@ -2,4 +2,12 @@
 
 var config = require('node-yaml-config').load('src/config.yaml');
 
-module.exports = config.db;
+var knexConfig = {};
+
+if (process.env.NODE_ENV) {
+    knexConfig[process.env.NODE_ENV] = config.db;
+} else {
+    knexConfig = config.db;
+}
+
+module.exports = knexConfig;
