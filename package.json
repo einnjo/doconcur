@@ -33,6 +33,7 @@
     "chance": "^0.7.6",
     "co-mocha": "^1.1.2",
     "dirty-chai": "^1.2.2",
+    "eslint": "^0.24.1",
     "factory-girl": "^1.6.0",
     "faker": "^3.0.0",
     "mocha": "^2.2.5",
