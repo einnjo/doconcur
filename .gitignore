@@ -24,3 +24,8 @@ npm-debug.log
 
 # Sensitive config info
 src/config.yaml
+
+# Coverage reporter
+coverage
+.coverrun
+.coverdata

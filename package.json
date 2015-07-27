@@ -12,6 +12,7 @@
   "dependencies": {
     "bcrypt": "^0.8.3",
     "bluebird": "^2.9.33",
+    "coveralls": "^2.11.3",
     "factory-girl": "^1.6.0",
     "functional-advice": "^1.0.1",
     "jsonwebtoken": "^5.0.4",
@@ -23,6 +24,7 @@
     "koa-passport": "^1.1.6",
     "koa-router": "^5.1.2",
     "lodash": "^3.10.0",
+    "mocha-lcov-reporter": "0.0.2",
     "moron": "^0.1.5",
     "node-yaml-config": "0.0.3",
     "passport-jwt": "^1.1.0",
@@ -36,6 +38,7 @@
     "dirty-chai": "^1.2.2",
     "eslint": "^0.24.1",
     "faker": "^3.0.0",
+    "istanbul": "^0.3.17",
     "mocha": "^2.2.5",
     "supertest": "^1.0.1",
     "supertest-as-promised": "^2.0.2"
