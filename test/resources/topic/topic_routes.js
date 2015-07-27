@@ -1,7 +1,7 @@
 'use strict';
 
 require('co-mocha');
-var FactoryGirl = require('src/libs/FactoryGirl');
+var FactoryGirl = require('src/libs/factoryGirl');
 var request = require('supertest-as-promised');
 var app = require('src/app');
 var models = app.models;
