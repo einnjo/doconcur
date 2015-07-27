@@ -7,7 +7,9 @@ var _ = require('lodash');
 var models = {};
 
 // Read model folders in dir, exclude files with extensions.
-const modelFolders = fs.readdirSync(__dirname).filter(file => file.indexOf('.') === -1);
+const modelFolders = fs.readdirSync(__dirname).filter(function (file) {
+    return file.indexOf('.') === -1;
+});
 
 // Require each model file inside each model folder dynamically.
 modelFolders.forEach(function (model) {

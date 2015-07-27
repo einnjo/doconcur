@@ -36,7 +36,7 @@ app.use(function *(next) {
 app.use(passport.initialize());
 
 // Require json web token for all resources routes.
-['/users', '/topics', '/participations', '/decisions', '/comments', '/answers'].forEach((path) => {
+['/users', '/topics', '/participations', '/decisions', '/comments', '/answers'].forEach(function (path) {
     router.all(path + '*', function *(next) {
         let self = this;
 
