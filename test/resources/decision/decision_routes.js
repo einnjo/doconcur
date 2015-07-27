@@ -103,6 +103,41 @@ describe('Decision routes:', function () {
                 });
             });
         });
+
+        describe('A decision can include it\'s author.', function () {
+            let user;
+            let decision;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                decision = yield FactoryGirl.createAsync('decision', {authorId: user.id});
+            });
+
+            before(function *() {
+                res = yield request
+                    .get(t.replaceParams(routes.decision, {id: decision.id}))
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .query({include: 'author'})
+                    .expect(200);
+            });
+
+            it('Response data has correct keys.', function () {
+                Object.keys(models.Decision.jsonSchema.properties).forEach(function (key) {
+                    expect(res.body.decision).to.have.property(key);
+                });
+            });
+
+            it('Includes author model in response.', function () {
+                expect(res.body.decision).to.have.property('author');
+                expect(res.body.decision.author.id).to.equal(user.id);
+            });
+        });
     });
 
     describe('GET ' + routes.decisions, function () {
@@ -134,7 +169,43 @@ describe('Decision routes:', function () {
                     expect(res.body.decisions[0]).to.have.property(key);
                 });
             });
+        });
 
+        describe('Decisions can include their author.', function () {
+            let user;
+            let decision;
+            let res;
+
+            t.purgeTablesBefore(knex);
+
+            before(function *() {
+                user = yield FactoryGirl.createAsync('user');
+                user.createTokenSync();
+                yield models.User.query().patch({token: user.token});
+
+                decision = yield FactoryGirl.createAsync('decision', {authorId: user.id});
+            });
+
+            before(function *() {
+                res = yield request
+                    .get(routes.decisions)
+                    .set('Authorization', t.bearerAuthString(user.token))
+                    .query({include: 'author'})
+                    .expect(200);
+            });
+
+            it('Response data is ok.', function () {
+                expect(res.body.decisions).be.an('array');
+                expect(res.body.decisions).to.have.length(1);
+                Object.keys(models.Decision.jsonSchema.properties).forEach(function (key) {
+                    expect(res.body.decisions[0]).to.have.property(key);
+                });
+            });
+
+            it('Includes author model in response.', function () {
+                expect(res.body.decisions[0]).to.have.property('author');
+                expect(res.body.decisions[0].author.id).to.equal(user.id);
+            });
         });
     });
 

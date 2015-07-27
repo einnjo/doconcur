@@ -14,12 +14,22 @@ exports.createDecision = function *() {
 };
 
 exports.getDecision = function *() {
-    let decision = yield Decision.query().where('id', this.params.id).first();
+    let decision = yield Decision
+        .query()
+        .allowEager('[author]')
+        .eager(this.query.include)
+        .where('id', this.params.id)
+        .first();
+
     this.body = {decision: decision};
 };
 
 exports.getDecisions = function *() {
-    let decisions = yield Decision.query();
+    let decisions = yield Decision
+        .query()
+        .allowEager('[author]')
+        .eager(this.query.include);
+
     this.body = {decisions: decisions};
 };
 
