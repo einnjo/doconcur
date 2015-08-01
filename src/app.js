@@ -1,20 +1,16 @@
 'use strict';
 
-var pg = require('pg');
-pg.types.setTypeParser(20, 'text', parseInt);
 var koa = require('koa');
 var app = koa();
 var koaBody = require('koa-better-body');
 var passport = require('src/libs/passport');
 var logger = require('koa-logger');
 var router = require('koa-router')();
-var knex = require('src/libs/knex');
-var models = require('src/resources/models');
-require('src/libs/moron');
 var AuthorizationError = require('src/errors/authorizationError');
+var db = require('src/db');
 
-app.knex = knex;
-app.models = models;
+app.knex = db.knex;
+app.models = db.models;
 
 app.use(logger());
 

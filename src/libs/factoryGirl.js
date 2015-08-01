@@ -2,7 +2,7 @@
 
 var FactoryGirl = require('factory-girl');
 var faker = require('faker');
-var models = require('src/resources/models');
+var models = require('src/db').models;
 var _ = require('lodash');
 require('src/libs/factory-girl-moron')();
 var Promise = require('bluebird');
