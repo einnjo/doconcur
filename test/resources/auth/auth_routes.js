@@ -27,7 +27,6 @@ var routes = {
 //     title: {type: 'string', minLength: 1, maxLength: 255},
 //     description: {type: 'string', minLength: 1, maxLength: 255},
 //     isClosed: {type: 'boolean'},
-//     topicId: {type: 'integer'},
 //     authorId: {type: 'integer'},
 //     closesOn: {type: 'string', format: 'date-time'},
 //     closedOn: {type: 'string', format: 'date-time'},

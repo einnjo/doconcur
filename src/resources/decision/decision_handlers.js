@@ -22,7 +22,7 @@ exports.getDecision = function *(next) {
 
     this.state.decision = yield Decision
         .query()
-        .allowEager('[author, topic, participations]')
+        .allowEager('[author, participations]')
         .eager(this.query.include)
         .where('id', decisionId)
         .first();
@@ -33,7 +33,7 @@ exports.getDecision = function *(next) {
 exports.getDecisions = function *(next) {
     this.state.decisions = yield Decision
         .query()
-        .allowEager('[author, topic, participations]')
+        .allowEager('[author, participations]')
         .eager(this.query.include);
 
     yield next;
@@ -48,7 +48,7 @@ exports.updateDecision = function *(next) {
 
     this.state.decision = yield Decision
         .query()
-        .allowEager('[author, topic, participations]')
+        .allowEager('[author, participations]')
         .where('id', this.params.id)
         .first();
 

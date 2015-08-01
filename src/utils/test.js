@@ -4,7 +4,7 @@ var expect = require('chai').expect();
 
 exports.purgeTablesBefore = function purgeTablesBefore(knex) {
     before(function *() {
-        yield knex.raw('TRUNCATE TABLE "Answers", "Comments", "Decisions", "Participations", "Topics", "Users"');
+        yield knex.raw('TRUNCATE TABLE "Answers", "Comments", "Decisions", "Tags", "DecisionTags", "Participations", "Users"');
     });
 };
 

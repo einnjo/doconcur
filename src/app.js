@@ -32,7 +32,7 @@ app.use(function *(next) {
 app.use(passport.initialize());
 
 // Require json web token for all resources routes.
-['/users', '/topics', '/participations', '/decisions', '/comments', '/answers'].forEach(function (path) {
+['/users', '/participations', '/decisions', '/comments', '/answers'].forEach(function (path) {
     router.all(path + '*', function *(next) {
         let self = this;
 
@@ -56,7 +56,6 @@ router.post('/auth/signin', passport.authenticate('local', {session: false}));
 
 app.use(router.routes());
 app.use(require('src/resources/auth/auth_routes').routes());
-app.use(require('src/resources/topic/topic_routes').routes());
 app.use(require('src/resources/decision/decision_routes').routes());
 app.use(require('src/resources/participation/participation_routes').routes());
 app.use(require('src/resources/answer/answer_routes').routes());

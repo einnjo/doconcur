@@ -25,27 +25,6 @@ FactoryGirl.define('user', models.User, {
     }
 });
 
-FactoryGirl.define('topic', models.Topic, {
-    title: function () {
-        return faker.lorem.sentence(3);
-    },
-    description: function () {
-        return faker.lorem.sentence(6);
-    },
-    authorId: FactoryGirl.assoc('user', 'id')
-});
-
-FactoryGirl.define('decision', models.Decision, {
-    title: function () {
-        return faker.lorem.sentence(3);
-    },
-    description: function () {
-        return faker.lorem.sentence(6);
-    },
-    topicId: FactoryGirl.assoc('topic', 'id'),
-    authorId: FactoryGirl.assoc('user', 'id')
-});
-
 FactoryGirl.define('participation', models.Participation, {
     authorId: FactoryGirl.assoc('user', 'id'),
     answerId: FactoryGirl.assoc('answer', 'id'),
@@ -64,6 +43,27 @@ FactoryGirl.define('answer', models.Answer, {
     value: function () {
         return _.sample(['yes', 'no', 'maybe']);
     }
+});
+
+FactoryGirl.define('decision', models.Decision, {
+    title: function () {
+        return faker.lorem.sentence(3);
+    },
+    description: function () {
+        return faker.lorem.sentence(6);
+    },
+    authorId: FactoryGirl.assoc('user', 'id')
+});
+
+FactoryGirl.define('tag', models.Tag, {
+    value: function () {
+        return faker.lorem.sentence(3);
+    }
+});
+
+FactoryGirl.define('decisionTag', models.DecisionTag, {
+    decisionId: FactoryGirl.assoc('decision', 'id'),
+    tagId: FactoryGirl.assoc('tag', 'id')
 });
 
 Promise.promisifyAll(FactoryGirl);

@@ -50,15 +50,6 @@ User.jsonSchema = {
 };
 
 User.relationMappings = {
-    topics: {
-        relation: Model.OneToManyRelation,
-        modelClass: 'src/resources/topic/topic_model',
-        join: {
-            from: 'Users.id',
-            to: 'Topics.authorId'
-        }
-    },
-
     decisions: {
         relation: Model.OneToManyRelation,
         modelClass: 'src/resources/decision/decision_model',
